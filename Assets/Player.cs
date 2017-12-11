@@ -1,6 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.XR.iOS;
 
 public class Player : MonoBehaviour
 {
@@ -14,6 +15,37 @@ public class Player : MonoBehaviour
 
     [SerializeField]
     float maxAngulaerVelocity;
+
+    [SerializeField]
+    Text label;
+
+
+    [SerializeField]
+    new SpriteRenderer renderer;
+    [SerializeField]
+    Sprite close, open;
+
+    void Start()
+    {
+        UnityARSessionNativeInterface.ARFaceAnchorUpdatedEvent += FaceUpdated;
+    }
+
+    void FaceUpdated(ARFaceAnchor anchorData)
+    {
+        Dictionary<string, float> currentBlendShapes = anchorData.blendShapes;
+        var power = currentBlendShapes["jawOpen"];
+        label.text = "jawOpen(raw): " + power;
+
+        if (power < 0.2f)
+        {
+            renderer.sprite = close;
+        }
+        else
+        {
+            rigid.AddForce(-transform.right * power * movePower);
+            renderer.sprite = open;
+        }
+    }
 
     void Update()
     {
